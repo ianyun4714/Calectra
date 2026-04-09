@@ -250,25 +250,25 @@ class CambiumDataProcessor:
         """Load real Combined Locational Marginal Costs (LMP) from Cambium workbook
         
         Sources from 'Data - Time-of-day - Costs' worksheet.
-        Note: This worksheet has hourly profiles but data is indexed as MidCase only.
-        For other scenarios, applies scenario-specific price multipliers.
+        Combined cost = Energy + Capacity + Portfolio (per NREL Cambium methodology).
+        Same hourly profiles used for all years, with scenario-specific adjustments only.
         """
         data = []
         
-        # Read the Time-of-day costs sheet
+        # Read the Time-of-day costs sheet with proper headers
         df_lmp = pd.read_excel(self.file2, sheet_name='Data - Time-of-day - Costs', header=4)
         
-        # Forward-fill Region column (CAISO header in row 1, then NaN for hours 2-24, next region, etc.)
+        # Forward-fill Region column to map all 24 hours to each region
         df_lmp['Region'] = df_lmp['Region'].ffill()
         
         for scenario in scenarios:
             for region in regions:
                 for year in years:
                     for month in months:
-                        month_num = months.index(month) + 1
                         hourly_data = []
                         
-                        # Get scenario price multiplier
+                        # Get scenario price adjustment factor
+                        # These represent economic variations in costs (e.g., gas prices, RE costs)
                         scenario_multiplier = {
                             'MidCase': 1.0, 'Conservative': 1.05, 'Advanced': 0.85,
                             'High_Gas_Prices': 1.25, 'Low_Gas_Prices': 0.75,
@@ -276,35 +276,31 @@ class CambiumDataProcessor:
                             'Technology_Breakthrough': 0.70
                         }.get(scenario, 1.0)
                         
-                        # Year progression factor (prices decline  with more RE by 2050)
-                        year_progress = (year - 2025) / 25.0  # 0-1
-                        year_multiplier = 1 - 0.2 * year_progress  # 20% decline by 2050
-                        
-                        # Seasonal factor for month
-                        seasonal_factor = 1 + 0.15 * np.sin(2 * np.pi * month_num / 12)
-                        
                         try:
                             # Extract all 24 hours for this region
                             region_data = df_lmp[df_lmp['Region'] == region].copy().reset_index(drop=True)
                             
                             if len(region_data) != 24:
-                                raise ValueError(f"Expected 24 hours, found {len(region_data)}")
+                                raise ValueError(f"Expected 24 hours for {region}, found {len(region_data)}")
                             
-                            # Extract the Combined cost (Energy + Capacity + Portfolio)
+                            # Extract hourly Combined costs (Energy + Capacity + Portfolio)
+                            # The Combined column contains the base marginal cost profiles
                             for idx, row in region_data.iterrows():
-                                hour = row['Hour']
+                                hour = int(row['Hour'])
+                                # Use Combined column - this is the true marginal cost with capacity premium
                                 base_cost = row['Combined']
                                 
                                 if pd.notna(base_cost) and base_cost > 0:
-                                    # Apply year and scenario multipliers to the base Combined cost
-                                    final_cost = base_cost * year_multiplier * scenario_multiplier * seasonal_factor
+                                    # Apply scenario multiplier (represents economic variations)
+                                    # NO year multiplier - Combined column profiles are directional for 2050
+                                    final_cost = base_cost * scenario_multiplier
                                     hourly_data.append({
-                                        'hour': int(hour),
+                                        'hour': hour,
                                         'cost': round(max(0, final_cost), 2)
                                     })
                                 else:
                                     hourly_data.append({
-                                        'hour': int(hour),
+                                        'hour': hour,
                                         'cost': 0.0
                                     })
                             
@@ -318,13 +314,11 @@ class CambiumDataProcessor:
                                     'hourlyData': hourly_data
                                 })
                             else:
-                                raise ValueError(f"Only {len(hourly_data)} hours found")
+                                raise ValueError(f"Only {len(hourly_data)} hours found for {region}")
                         
                         except Exception as e:
                             # Fallback: synthetic data if extraction fails
-                            year_progress = (year - 2025) / 25.0
-                            year_multiplier = 1 - 0.3 * year_progress
-                            base_price = 45 * scenario_multiplier * year_multiplier
+                            base_price = 45 * scenario_multiplier
                             
                             region_factor = {
                                 'CAISO': 0.9, 'ERCOT': 1.1, 'FRCC': 1.0, 'ISONE': 1.15,
@@ -343,7 +337,7 @@ class CambiumDataProcessor:
                                 else:
                                     price_factor = 0.9
                                 
-                                price = base_price * price_factor * region_factor * seasonal_factor
+                                price = base_price * price_factor * region_factor
                                 hourly_data.append({
                                     'hour': hour,
                                     'cost': round(max(0, price), 2)
