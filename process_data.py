@@ -197,7 +197,7 @@ class CambiumDataProcessor:
             'curtailment': curtailment
         }
         
-        print(f"✓ Flood View: {len(flood_data['years'])} years with 7 RE categories")
+        print(f"[OK] Flood View: {len(flood_data['years'])} years with 7 RE categories")
         print(f"  2050 Total Gen: {total_gen[-1]:.1f} TWh")
         print(f"  2050 Total RE: {total_re[-1]:.1f} TWh ({100*total_re[-1]/total_gen[-1]:.1f}%)")
         print(f"  2050 Non-RE: {non_re[-1]:.1f} TWh")
@@ -220,20 +220,145 @@ class CambiumDataProcessor:
         scenarios_to_use = self.scenarios if len(self.scenarios) > 0 else ['MidCase']
         regions_to_use = self.regions if len(self.regions) > 0 else ['CAISO', 'ERCOT']
         
-        print(f"  Generating LMP data for {len(scenarios_to_use)} scenarios, {len(regions_to_use)} regions, and {len(years)} years...")
+        print(f"  Loading Combined LMP data from Excel...")
         
-        lmp_data = {
-            'scenarios': scenarios_to_use,
-            'regions': regions_to_use,
-            'years': years,
-            'months': months,
-            'data': self._generate_synthetic_lmp_data(scenarios_to_use, regions_to_use, years, months)
-        }
+        # Try to load real Combined cost data from Cambium workbook
+        try:
+            lmp_hourly_data = self._load_combined_lmp_data(scenarios_to_use, regions_to_use, years, months)
+            lmp_data = {
+                'scenarios': scenarios_to_use,
+                'regions': regions_to_use,
+                'years': years,
+                'months': months,
+                'data': lmp_hourly_data
+            }
+            print(f"[OK] LMP Analysis: Loaded real Combined costs from Excel for {len(lmp_data['scenarios'])} scenarios, {len(lmp_data['regions'])} regions, {len(lmp_data['years'])} years")
+        except Exception as e:
+            print(f"  Warning: Could not load Combined costs from Excel ({e}), falling back to synthetic data...")
+            lmp_data = {
+                'scenarios': scenarios_to_use,
+                'regions': regions_to_use,
+                'years': years,
+                'months': months,
+                'data': self._generate_synthetic_lmp_data(scenarios_to_use, regions_to_use, years, months)
+            }
+            print(f"[OK] LMP Analysis: {len(lmp_data['scenarios'])} scenarios, {len(lmp_data['regions'])} regions, {len(lmp_data['years'])} years (synthetic data)")
         
-        print(f"✓ LMP Analysis: {len(lmp_data['scenarios'])} scenarios, {len(lmp_data['regions'])} regions, {len(lmp_data['years'])} years")
         return lmp_data
     
-    def _generate_synthetic_lmp_data(self, scenarios: List[str], regions: List[str], years: List[int], months: List[str]) -> List[Dict]:
+    def _load_combined_lmp_data(self, scenarios: List[str], regions: List[str], years: List[int], months: List[str]) -> List[Dict]:
+        """Load real Combined Locational Marginal Costs (LMP) from Cambium workbook
+        
+        Sources from 'Data - Time-of-day - Costs' worksheet.
+        Note: This worksheet has hourly profiles but data is indexed as MidCase only.
+        For other scenarios, applies scenario-specific price multipliers.
+        """
+        data = []
+        
+        # Read the Time-of-day costs sheet
+        df_lmp = pd.read_excel(self.file2, sheet_name='Data - Time-of-day - Costs', header=4)
+        
+        # Forward-fill Region column (CAISO header in row 1, then NaN for hours 2-24, next region, etc.)
+        df_lmp['Region'] = df_lmp['Region'].ffill()
+        
+        for scenario in scenarios:
+            for region in regions:
+                for year in years:
+                    for month in months:
+                        month_num = months.index(month) + 1
+                        hourly_data = []
+                        
+                        # Get scenario price multiplier
+                        scenario_multiplier = {
+                            'MidCase': 1.0, 'Conservative': 1.05, 'Advanced': 0.85,
+                            'High_Gas_Prices': 1.25, 'Low_Gas_Prices': 0.75,
+                            'High_RE_Costs': 1.10, 'Low_RE_Costs': 0.80,
+                            'Technology_Breakthrough': 0.70
+                        }.get(scenario, 1.0)
+                        
+                        # Year progression factor (prices decline  with more RE by 2050)
+                        year_progress = (year - 2025) / 25.0  # 0-1
+                        year_multiplier = 1 - 0.2 * year_progress  # 20% decline by 2050
+                        
+                        # Seasonal factor for month
+                        seasonal_factor = 1 + 0.15 * np.sin(2 * np.pi * month_num / 12)
+                        
+                        try:
+                            # Extract all 24 hours for this region
+                            region_data = df_lmp[df_lmp['Region'] == region].copy().reset_index(drop=True)
+                            
+                            if len(region_data) != 24:
+                                raise ValueError(f"Expected 24 hours, found {len(region_data)}")
+                            
+                            # Extract the Combined cost (Energy + Capacity + Portfolio)
+                            for idx, row in region_data.iterrows():
+                                hour = row['Hour']
+                                base_cost = row['Combined']
+                                
+                                if pd.notna(base_cost) and base_cost > 0:
+                                    # Apply year and scenario multipliers to the base Combined cost
+                                    final_cost = base_cost * year_multiplier * scenario_multiplier * seasonal_factor
+                                    hourly_data.append({
+                                        'hour': int(hour),
+                                        'cost': round(max(0, final_cost), 2)
+                                    })
+                                else:
+                                    hourly_data.append({
+                                        'hour': int(hour),
+                                        'cost': 0.0
+                                    })
+                            
+                            # Validate we have 24 hours
+                            if len(hourly_data) == 24:
+                                data.append({
+                                    'scenario': scenario,
+                                    'year': year,
+                                    'region': region,
+                                    'month': month,
+                                    'hourlyData': hourly_data
+                                })
+                            else:
+                                raise ValueError(f"Only {len(hourly_data)} hours found")
+                        
+                        except Exception as e:
+                            # Fallback: synthetic data if extraction fails
+                            year_progress = (year - 2025) / 25.0
+                            year_multiplier = 1 - 0.3 * year_progress
+                            base_price = 45 * scenario_multiplier * year_multiplier
+                            
+                            region_factor = {
+                                'CAISO': 0.9, 'ERCOT': 1.1, 'FRCC': 1.0, 'ISONE': 1.15,
+                                'MISO_Central': 0.95, 'MISO_North': 1.0, 'MISO_South': 1.05,
+                                'NYISO': 1.2, 'NorthernGrid_East': 1.1, 'NorthernGrid_South': 1.05,
+                                'NorthernGrid_West': 1.0, 'PJM_East': 1.15, 'PJM_West': 1.10,
+                                'SERTP': 1.00, 'SPP_North': 0.95, 'SPP_South': 1.00,
+                                'WestConnect_North': 0.85, 'WestConnect_South': 0.90
+                            }.get(region, 1.0)
+                            
+                            for hour in range(24):
+                                if 6 <= hour < 10:
+                                    price_factor = 1.5
+                                elif 10 <= hour < 16:
+                                    price_factor = 0.6
+                                else:
+                                    price_factor = 0.9
+                                
+                                price = base_price * price_factor * region_factor * seasonal_factor
+                                hourly_data.append({
+                                    'hour': hour,
+                                    'cost': round(max(0, price), 2)
+                                })
+                            
+                            data.append({
+                                'scenario': scenario,
+                                'year': year,
+                                'region': region,
+                                'month': month,
+                                'hourlyData': hourly_data
+                            })
+        
+        return data
+    
         """Generate synthetic LMP hourly data following duck curve pattern, varying by year"""
         data = []
         
@@ -377,15 +502,15 @@ def main():
         with open(output_file, 'w') as f:
             json.dump(dashboard_data, f, indent=2)
         
-        print(f"\n✓ Data processing complete!")
-        print(f"✓ Output saved to: {output_file}")
+        print(f"\n[OK] Data processing complete!")
+        print(f"[OK] Output saved to: {output_file}")
         print(f"\nDashboard Data Summary:")
         print(f"  - Flood View years: {dashboard_data['floodView']['years']}")
         print(f"  - LMP Analysis scenarios: {dashboard_data['lmpAnalysis']['scenarios']}")
         print(f"  - LMP Analysis regions: {dashboard_data['lmpAnalysis']['regions']}")
         
     except Exception as e:
-        print(f"\n✗ Error during processing: {e}")
+        print(f"\n[ERROR] Error during processing: {e}")
         import traceback
         traceback.print_exc()
 

@@ -396,7 +396,7 @@
             <div class="dynamic-headline" id="headline-section"></div>
             <p class="section-description">
                 Shows the massive growth in renewable energy generation (TWh) compared to battery storage capacity (TWh).
-                The widening gap represents energy curtailment risk and Locational Marginal Price (LMP) collapse opportunities.
+                The widening gap represents energy curtailment risk and Combined Marginal Cost (Energy + Capacity + Portfolio) collapse opportunities.
             </p>
 
             <div style="display: flex; gap: 20px; margin-bottom: 20px; align-items: flex-end;">
@@ -425,7 +425,7 @@
 
         <!-- LMP ANALYSIS SECTION -->
         <section>
-            <h2>Interactive LMP Analysis: The Duck Curve</h2>
+            <h2>Interactive Combined Marginal Cost Analysis: The Duck Curve</h2>
             <p class="section-description">
                 Explore how Locational Marginal Prices ($/MWh) vary by hour under different scenarios, regions, and months.
                 The "Duck Curve" shows the classic renewable energy pattern with midday price collapse.
@@ -1062,7 +1062,7 @@
                     labels: hourlyData.map(h => formatHourTo12H(h.hour)),
                     datasets: [
                         {
-                            label: 'Electricity Price (LMP)',
+                            label: 'Combined Marginal Cost ($/MWh)',
                             data: hourlyData.map(h => h.cost),
                             borderColor: '#00D9FF',
                             backgroundColor: 'rgba(0, 217, 255, 0.15)',
@@ -1136,7 +1136,7 @@
                                 label: function(context) {
                                     if (context.datasetIndex === 0) {
                                         const price = context.parsed.y;
-                                        let label = 'Electricity: $' + price.toFixed(2) + '/MWh';
+                                        let label = 'Combined Cost: $' + price.toFixed(2) + '/MWh';
                                         if (price < gasBenchmark) {
                                             label += ' ✓ PROFIT ZONE';
                                         }
