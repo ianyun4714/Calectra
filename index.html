@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. Power Market 2050 Outlook - Energy Market Analysis</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00D9FF;
+            --secondary: #FF6B35;
+            --dark: #1a1f2e;
+            --darker: #0f1419;
+            --gray-700: #374151;
+            --gray-600: #4B5563;
+            --gray-500: #6B7280;
+            --gray-400: #9CA3AF;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: var(--darker);
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* HEADER */
+        header {
+            border-bottom: 1px solid var(--gray-700);
+            background: linear-gradient(180deg, var(--dark) 0%, rgba(26, 31, 46, 0.5) 100%);
+            padding: 40px 20px;
+        }
+
+        .header-content {
+            max-width: 1280px;
+            margin: 0 auto;
+        }
+
+        .header-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .header-subtitle {
+            color: var(--gray-400);
+            margin-bottom: 30px;
+        }
+
+        .header-meta {
+            text-align: right;
+            margin-bottom: 20px;
+            font-size: 0.875rem;
+        }
+
+        .header-meta-label {
+            color: var(--primary);
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+        }
+
+        .header-meta-date {
+            color: var(--gray-500);
+            font-size: 0.75rem;
+            margin-top: 5px;
+        }
+
+        .thesis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .thesis-card {
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--gray-700);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .thesis-card.blue {
+            border-color: rgba(59, 130, 246, 0.3);
+            background-color: rgba(29, 78, 216, 0.1);
+        }
+
+        .thesis-card.green {
+            border-color: rgba(34, 197, 94, 0.3);
+            background-color: rgba(21, 128, 61, 0.1);
+        }
+
+        .thesis-card.purple {
+            border-color: rgba(147, 51, 234, 0.3);
+            background-color: rgba(88, 28, 135, 0.1);
+        }
+
+        .thesis-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .thesis-card.blue .thesis-label {
+            color: #60A5FA;
+        }
+
+        .thesis-card.green .thesis-label {
+            color: #4ADE80;
+        }
+
+        .thesis-card.purple .thesis-label {
+            color: #C084FC;
+        }
+
+        .thesis-text {
+            font-size: 0.875rem;
+        }
+
+        /* MAIN CONTENT */
+        main {
+            padding: 40px 20px;
+        }
+
+        section {
+            margin-bottom: 60px;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-description {
+            color: var(--gray-400);
+            margin-bottom: 20px;
+            font-size: 0.95rem;
+        }
+
+        /* CHART CONTAINER */
+        .chart-container {
+            background: linear-gradient(135deg, rgba(0, 217, 255, 0.1) 0%, rgba(255, 107, 53, 0.1) 100%);
+            border: 1px solid rgba(0, 217, 255, 0.2);
+            border-radius: 12px;
+            padding: 30px;
+            margin-top: 30px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+            margin-bottom: 30px;
+        }
+
+        /* HEADLINE */
+        .dynamic-headline {
+            margin-bottom: 20px;
+        }
+
+        .headline-text {
+            font-size: 1.75rem;
+            font-weight: bold;
+            line-height: 1.3;
+        }
+
+        .headline-insight {
+            background-color: rgba(127, 29, 29, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.875rem;
+            color: #FCA5A5;
+        }
+
+        /* METRICS GRID */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .metric-card {
+            background-color: rgba(31, 41, 55, 0.5);
+            border: 1px solid var(--gray-700);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .metric-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--gray-400);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .metric-value.primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .metric-value.secondary {
+            color: var(--secondary);
+        }
+
+        .metric-value.danger {
+            color: #EF4444;
+        }
+
+        .metric-subtext {
+            font-size: 0.75rem;
+            color: var(--gray-500);
+        }
+
+        /* FILTERS */
+        .filters-container {
+            background-color: rgba(31, 41, 55, 0.5);
+            border: 1px solid var(--gray-700);
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .filter-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        select {
+            background-color: var(--gray-700);
+            border: 1px solid var(--gray-600);
+            border-radius: 6px;
+            padding: 10px 15px;
+            color: #fff;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        select:hover {
+            border-color: var(--primary);
+        }
+
+        select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 217, 255, 0.1);
+        }
+
+        /* DUCK CURVE WARNING */
+        .duck-curve-warning {
+            background-color: rgba(120, 53, 15, 0.2);
+            border: 1px solid rgba(249, 115, 22, 0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.875rem;
+            color: #FED7AA;
+        }
+
+        /* FOOTER */
+        footer {
+            border-top: 1px solid var(--gray-700);
+            padding: 30px 20px;
+            text-align: center;
+            color: var(--gray-500);
+            font-size: 0.875rem;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            min-height: 400px;
+            color: var(--gray-400);
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--gray-700);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .header-title {
+                font-size: 1.875rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .headline-text {
+                font-size: 1.25rem;
+            }
+
+            .filters-container {
+                grid-template-columns: 1fr;
+            }
+
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .thesis-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="header-content">
+            <div class="header-meta">
+                <div class="header-meta-label">NREL Cambium 2024</div>
+                <div class="header-meta-date" id="currentDate"></div>
+            </div>
+            <h1 class="header-title">U.S. Power Market 2050 Outlook</h1>
+            <p class="header-subtitle">Energy Market Analysis & Strategic Insights</p>
+
+            <div class="thesis-grid">
+                <div class="thesis-card blue">
+                    <div class="thesis-label">Our Thesis</div>
+                    <p class="thesis-text">Renewable capacity will surge, overwhelming battery storage and collapsing prices</p>
+                </div>
+                <div class="thesis-card green">
+                    <div class="thesis-label">The Opportunity</div>
+                    <p class="thesis-text">Industrial thermal storage solves grid challenges and creates value</p>
+                </div>
+                <div class="thesis-card purple">
+                    <div class="thesis-label">Timeline</div>
+                    <p class="thesis-text">2025-2050 energy transition visible in real-time data</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- FLOOD VIEW SECTION -->
+        <section>
+            <div class="dynamic-headline" id="headline-section"></div>
+            <p class="section-description">
+                Shows the massive growth in renewable energy generation (TWh) compared to battery storage capacity (TWh).
+                The widening gap represents energy curtailment risk and Locational Marginal Price (LMP) collapse opportunities.
+            </p>
+
+            <div style="display: flex; gap: 20px; margin-bottom: 20px; align-items: flex-end;">
+                <div style="flex: 1;">
+                    <label for="floodScenarioFilter" style="color: #9CA3AF; font-size: 0.875rem; font-weight: 600; display: block; margin-bottom: 8px;">Select Scenario:</label>
+                    <select id="floodScenarioFilter" onchange="updateFloodView()" style="width: 100%; padding: 10px; background: rgba(26, 31, 46, 0.8); border: 1px solid #374151; color: #D1D5DB; border-radius: 6px; font-size: 0.875rem;">
+                        <option value="">Loading scenarios...</option>
+                    </select>
+                </div>
+                <div style="flex: 1;">
+                    <label for="floodRegionFilter" style="color: #9CA3AF; font-size: 0.875rem; font-weight: 600; display: block; margin-bottom: 8px;">Select Region (GEA):</label>
+                    <select id="floodRegionFilter" onchange="updateFloodView()" style="width: 100%; padding: 10px; background: rgba(26, 31, 46, 0.8); border: 1px solid #374151; color: #D1D5DB; border-radius: 6px; font-size: 0.875rem;">
+                        <option value="">Loading regions...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <canvas id="floodViewChart"></canvas>
+                </div>
+            </div>
+
+            <div class="metrics-grid" id="flood-metrics"></div>
+        </section>
+
+        <!-- LMP ANALYSIS SECTION -->
+        <section>
+            <h2>Interactive LMP Analysis: The Duck Curve</h2>
+            <p class="section-description">
+                Explore how Locational Marginal Prices ($/MWh) vary by hour under different scenarios, regions, and months.
+                The "Duck Curve" shows the classic renewable energy pattern with midday price collapse.
+            </p>
+
+            <!-- FILTERS -->
+            <div class="filters-container">
+                <div class="filter-group">
+                    <label class="filter-label">Year</label>
+                    <select id="yearFilter" onchange="updateLMPChart()">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Scenario</label>
+                    <select id="scenarioFilter" onchange="updateLMPChart()">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Region</label>
+                    <select id="regionFilter" onchange="updateLMPChart()">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Month</label>
+                    <select id="monthFilter" onchange="updateLMPChart()">
+                        <option value="">Loading...</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="duckCurveWarning"></div>
+
+            <!-- CHART -->
+            <div class="chart-container">
+                <div class="chart-wrapper">
+                    <canvas id="lmpChart"></canvas>
+                </div>
+            </div>
+
+            <!-- STATISTICS -->
+            <div class="metrics-grid" id="lmp-metrics"></div>
+        </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+        <p>Powered by NREL Cambium 2024 Data | Calectra © 2024</p>
+    </footer>
+
+    <script>
+        let dashboardData = null;
+        let floodViewChart = null;
+        let lmpChart = null;
+        let currentFloodScenario = 'MidCase';  // Track selected scenario
+        let currentFloodRegion = 'CAISO';  // Track selected region
+
+        // Initialize dashboard
+        async function initDashboard() {
+            try {
+                // Load data from public/data folder
+                const response = await fetch('./public/data/dashboard_data.json');
+                if (!response.ok) throw new Error('Failed to load data');
+                dashboardData = await response.json();
+
+                // Set current date
+                document.getElementById('currentDate').textContent = new Date().toLocaleDateString();
+
+                // Populate scenario dropdown from metadata
+                if (dashboardData.metadata && dashboardData.metadata.scenarios) {
+                    const scenarioSelect = document.getElementById('floodScenarioFilter');
+                    scenarioSelect.innerHTML = '';
+                    
+                    dashboardData.metadata.scenarios.forEach(scenario => {
+                        const option = document.createElement('option');
+                        option.value = scenario;
+                        const displayName = scenario.replace(/_/g, ' ');
+                        option.textContent = displayName;
+                        scenarioSelect.appendChild(option);
+                    });
+                    
+                    scenarioSelect.value = 'MidCase';
+                    currentFloodScenario = 'MidCase';
+                }
+
+                // Populate region dropdown from metadata
+                if (dashboardData.metadata && dashboardData.metadata.regions) {
+                    const regionSelect = document.getElementById('floodRegionFilter');
+                    regionSelect.innerHTML = '';
+                    
+                    // Add "National/All" option first
+                    const nationalOption = document.createElement('option');
+                    nationalOption.value = 'National';
+                    nationalOption.textContent = '📊 National (All Regions)';
+                    regionSelect.appendChild(nationalOption);
+                    
+                    // Add individual regions
+                    dashboardData.metadata.regions.forEach(region => {
+                        const option = document.createElement('option');
+                        option.value = region;
+                        option.textContent = region;
+                        regionSelect.appendChild(option);
+                    });
+                    
+                    regionSelect.value = 'National';
+                    currentFloodRegion = 'National';
+                }
+
+                // Initialize sections
+                initFloodView();
+                initLMPAnalysis();
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                showErrorMessage('Failed to load dashboard data. Make sure dashboard_data.json exists in public/data/');
+            }
+        }
+
+        function showErrorMessage(message) {
+            const main = document.querySelector('main');
+            main.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: center; flex-direction: column; min-height: 400px;">
+                    <div style="text-align: center;">
+                        <p style="color: #EF4444; font-size: 1.125rem; margin-bottom: 10px;">⚠️ ${message}</p>
+                        <p style="color: var(--gray-400); margin-bottom: 20px;">Verify the data file exists at:</p>
+                        <code style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; display: inline-block; color: #00D9FF; margin-bottom: 20px;">
+                            public/data/dashboard_data.json
+                        </code>
+                        <p style="color: var(--gray-400); margin-bottom: 20px;">If not, run:</p>
+                        <code style="background: rgba(0,0,0,0.5); padding: 15px; border-radius: 8px; display: inline-block; color: #00D9FF;">
+                            cd "c:\Users\dlseh\Desktop\Calectra Github\Calectra"<br>
+                            python process_data.py
+                        </code>
+                        <p style="color: var(--gray-400); margin-top: 20px;">Then refresh this page (Ctrl+R)</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // UPDATE FLOOD VIEW BY SCENARIO & REGION
+        function updateFloodView() {
+            const scenarioSelect = document.getElementById('floodScenarioFilter');
+            const regionSelect = document.getElementById('floodRegionFilter');
+            
+            currentFloodScenario = scenarioSelect.value || 'MidCase';
+            currentFloodRegion = regionSelect.value || 'National';
+            
+            // Get the appropriate data
+            let floodData;
+            if (currentFloodRegion === 'National') {
+                // Use aggregate flood view data
+                floodData = dashboardData.floodView;
+            } else if (dashboardData.scenarioFloodData && 
+                       dashboardData.scenarioFloodData[currentFloodScenario] &&
+                       dashboardData.scenarioFloodData[currentFloodScenario][currentFloodRegion]) {
+                floodData = dashboardData.scenarioFloodData[currentFloodScenario][currentFloodRegion];
+            } else {
+                console.warn(`No data found for ${currentFloodScenario} / ${currentFloodRegion}`);
+                floodData = dashboardData.floodView;
+            }
+            
+            // Re-render the flood view section
+            initFloodView(floodData);
+        }
+
+        // FLOOD VIEW INITIALIZATION
+        function initFloodView(floodDataOverride = null) {
+            const data = floodDataOverride || dashboardData.floodView;
+
+            // Calculate total RE (sum of 7 categories)
+            const totalRe = data.generationMix.upv.map((_, i) => 
+                data.generationMix.upv[i] +
+                data.generationMix.windOnshore[i] +
+                data.generationMix.windOffshore[i] +
+                data.generationMix.hydro[i] +
+                data.generationMix.distpv[i] +
+                data.generationMix.geothermal[i] +
+                data.generationMix.biomass[i]
+            );
+
+            // Generate headline
+            const latestYear = data.years[data.years.length - 1];
+            const earliestYear = data.years[0];
+            
+            const reGrowth = ((totalRe[totalRe.length - 1] - totalRe[0]) / totalRe[0] * 100).toFixed(0);
+            const batteryThroughputGrowth = ((data.batteryThroughput[data.batteryThroughput.length - 1] - data.batteryThroughput[0]) / data.batteryThroughput[0] * 100).toFixed(0);
+            const curtailmentGap = (data.curtailment[data.curtailment.length - 1] / data.batteryThroughput[data.batteryThroughput.length - 1]).toFixed(1);
+            const rePercent = (100 * totalRe[totalRe.length - 1] / data.totalGeneration[data.totalGeneration.length - 1]).toFixed(0);
+
+            const scenarioDisplay = currentFloodScenario.replace(/_/g, ' ');
+            const regionDisplay = currentFloodRegion === 'National' ? 'National Grid' : currentFloodRegion;
+            const headline = `The Storage Gap: Wasted Energy Outpaces Battery Throughput`;
+
+            document.getElementById('headline-section').innerHTML = `
+                <div class="dynamic-headline">
+                    <h2 class="headline-text">${headline}</h2>
+                    <div class="headline-insight">
+                        📍 <strong>${scenarioDisplay} | ${regionDisplay}</strong><br>
+                        ⚡ <strong>RE Milestone:</strong> Renewables reach ${rePercent}% of total generation by ${latestYear} (${totalRe[totalRe.length - 1].toFixed(1)} TWh)<br>
+                        🔋 <strong>The Critical Gap:</strong> In ${latestYear}, annual curtailment (wasted energy) is <span style="color: #EF4444; font-weight: bold;">${curtailmentGap}x larger</span> than battery annual throughput.<br>
+                        💡 <strong>The Opportunity:</strong> Wasted RE generation = ${data.curtailment[data.curtailment.length - 1].toFixed(2)} TWh vs Battery work = ${data.batteryThroughput[data.batteryThroughput.length - 1].toFixed(2)} TWh. Long-duration thermal storage (Calectra) is essential.
+                    </div>
+                </div>
+            `;
+
+            // Create chart
+            createFloodViewChart(data);
+
+            // Create metric cards with new metrics
+            createFloodMetrics(reGrowth, batteryThroughputGrowth, curtailmentGap, earliestYear, latestYear, data);
+        }
+
+        function createFloodViewChart(data) {
+            const ctx = document.getElementById('floodViewChart').getContext('2d');
+
+            // Color palette for 7 RE categories
+            const colors = {
+                upv: 'rgba(255, 193, 7, 0.85)',           // Gold/Yellow
+                windOnshore: 'rgba(33, 150, 243, 0.85)',  // Blue
+                windOffshore: 'rgba(0, 188, 212, 0.85)',  // Cyan
+                hydro: 'rgba(76, 175, 80, 0.85)',         // Green
+                distpv: 'rgba(255, 152, 0, 0.85)',        // Orange
+                geothermal: 'rgba(233, 30, 99, 0.85)',    // Pink/Red
+                biomass: 'rgba(156, 39, 176, 0.85)',      // Purple
+                totalGen: 'rgba(107, 114, 128, 0.5)'      // Neutral Gray
+            };
+
+            const chartData = {
+                labels: data.years,
+                datasets: [
+                    // Total Generation - Single bar (Left)
+                    {
+                        label: 'Total Generation',
+                        data: data.totalGeneration,
+                        backgroundColor: colors.totalGen,
+                        borderColor: 'rgba(107, 114, 128, 0.8)',
+                        borderWidth: 1,
+                        type: 'bar',
+                        order: 2,
+                        yAxisID: 'y',
+                        stack: 'Total',
+                        barPercentage: 0.4,
+                        categoryPercentage: 0.9,
+                    },
+                    // RE Composition (7 categories) - Stacked bar (Right)
+                    {
+                        label: 'Geothermal',
+                        data: data.generationMix.geothermal,
+                        backgroundColor: colors.geothermal,
+                        borderWidth: 0,
+                        type: 'bar',
+                        order: 2,
+                        yAxisID: 'y',
+                        stack: 'RE',
+                        barPercentage: 0.4,
+                        categoryPercentage: 0.9,
+                    },
+                    {
+                        label: 'Hydro',
+                        data: data.generationMix.hydro,
+                        backgroundColor: colors.hydro,
+                        borderWidth: 0,
+                        type: 'bar',
+                        order: 2,
+                        yAxisID: 'y',
+                        stack: 'RE',
+                        barPercentage: 0.4,
+                        categoryPercentage: 0.9,
+                    },
+                    {
+                        label: 'UPV (Utility Solar)',
+                        data: data.generationMix.upv,
+                        backgroundColor: colors.upv,
+                        borderWidth: 0,
+                        type: 'bar',
+                        order: 2,
+                        yAxisID: 'y',
+                        stack: 'RE',
+                        barPercentage: 0.4,
+                        categoryPercentage: 0.9,
+                    },
+                    {
+                        label: 'Wind-Onshore',
+                        data: data.generationMix.windOnshore,
+                        backgroundColor: colors.windOnshore,
+                        borderWidth: 0,
+                        type: 'bar',
+                        order: 2,
+                        yAxisID: 'y',
+                        stack: 'RE',
+                        barPercentage: 0.4,
+                        categoryPercentage: 0.9,
+                    },
+                    {
+                        label: 'Wind-Offshore',
+                        data: data.generationMix.windOffshore,
+                        backgroundColor: colors.windOffshore,
+                        borderWidth: 0,
+                        type: 'bar',
+                        order: 2,
+                        yAxisID: 'y',
+                        stack: 'RE',
+                        barPercentage: 0.4,
+                        categoryPercentage: 0.9,
+                    },
+                    {
+                        label: 'Distributed Solar (DistPV)',
+                        data: data.generationMix.distpv,
+                        backgroundColor: colors.distpv,
+                        borderWidth: 0,
+                        type: 'bar',
+                        order: 2,
+                        yAxisID: 'y',
+                        stack: 'RE',
+                        barPercentage: 0.4,
+                        categoryPercentage: 0.9,
+                    },
+                    {
+                        label: 'Biomass',
+                        data: data.generationMix.biomass,
+                        backgroundColor: colors.biomass,
+                        borderWidth: 0,
+                        type: 'bar',
+                        order: 2,
+                        yAxisID: 'y',
+                        stack: 'RE',
+                        barPercentage: 0.4,
+                        categoryPercentage: 0.9,
+                    },
+                    // Battery Capacity Line
+                    {
+                        label: 'Battery Annual Throughput (TWh)',
+                        data: data.batteryThroughput,
+                        borderColor: 'rgba(251, 146, 60, 1)',
+                        backgroundColor: 'transparent',
+                        borderWidth: 3,
+                        type: 'line',
+                        tension: 0.4,
+                        order: 1,
+                        yAxisID: 'y1',
+                        pointRadius: 5,
+                        pointBackgroundColor: 'rgba(251, 146, 60, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                    },
+                    // Curtailment Line
+                    {
+                        label: 'Annual Wasted Energy - Curtailment (TWh)',
+                        data: data.curtailment,
+                        borderColor: 'rgba(239, 68, 68, 1)',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        type: 'line',
+                        tension: 0.4,
+                        order: 1,
+                        yAxisID: 'y1',
+                        pointRadius: 5,
+                        pointBackgroundColor: 'rgba(239, 68, 68, 1)',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                    },
+                ]
+            };
+
+            if (floodViewChart) floodViewChart.destroy();
+
+            floodViewChart = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#D1D5DB',
+                                font: { size: 11 },
+                                padding: 12,
+                                usePointStyle: true,
+                            },
+                            position: 'bottom',
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 31, 46, 0.95)',
+                            borderColor: '#00D9FF',
+                            borderWidth: 1,
+                            titleColor: '#00D9FF',
+                            titleFont: { weight: 'bold', size: 13 },
+                            bodyColor: '#D1D5DB',
+                            padding: 15,
+                            displayColors: true,
+                            borderRadius: 6,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += context.parsed.y.toFixed(2) + ' TWh';
+                                    return label;
+                                },
+                                afterLabel: function(context) {
+                                    // Show percentage for RE categories
+                                    if (context.datasetIndex > 0 && context.datasetIndex < 8) {
+                                        const reTotal = data.generationMix.geothermal[context.dataIndex] +
+                                                       data.generationMix.hydro[context.dataIndex] +
+                                                       data.generationMix.upv[context.dataIndex] +
+                                                       data.generationMix.windOnshore[context.dataIndex] +
+                                                       data.generationMix.windOffshore[context.dataIndex] +
+                                                       data.generationMix.distpv[context.dataIndex] +
+                                                       data.generationMix.biomass[context.dataIndex];
+                                        const percent = (100 * context.parsed.y / reTotal).toFixed(1);
+                                        return `(${percent}% of RE)`;
+                                    }
+                                    return '';
+                                },
+                                footer: function(context) {
+                                    // Show totals
+                                    if (context[0].datasetIndex === 0) {
+                                        return 'Total Gen: ' + context[0].parsed.y.toFixed(1) + ' TWh';
+                                    } else if (context[0].datasetIndex > 0 && context[0].datasetIndex < 8) {
+                                        const reTotal = data.generationMix.geothermal[context[0].dataIndex] +
+                                                       data.generationMix.hydro[context[0].dataIndex] +
+                                                       data.generationMix.upv[context[0].dataIndex] +
+                                                       data.generationMix.windOnshore[context[0].dataIndex] +
+                                                       data.generationMix.windOffshore[context[0].dataIndex] +
+                                                       data.generationMix.distpv[context[0].dataIndex] +
+                                                       data.generationMix.biomass[context[0].dataIndex];
+                                        return 'Total RE: ' + reTotal.toFixed(1) + ' TWh';
+                                    }
+                                    return '';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            ticks: {
+                                color: '#9CA3AF',
+                                callback: function(value) {
+                                    return value.toFixed(0);
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(107, 114, 128, 0.2)',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Generation (TWh)',
+                                color: '#9CA3AF',
+                                font: { weight: 'bold', size: 13 }
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            ticks: {
+                                color: '#9CA3AF',
+                            },
+                            grid: {
+                                drawOnChartArea: false,
+                            },
+                            title: {
+                                display: true,
+                                text: 'Battery Throughput & Curtailment (TWh)',
+                                color: '#9CA3AF',
+                                font: { weight: 'bold', size: 13 }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#9CA3AF',
+                                font: { weight: 'bold' }
+                            },
+                            grid: {
+                                color: 'rgba(107, 114, 128, 0.2)',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Year',
+                                color: '#9CA3AF',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function createFloodMetrics(reGrowth, batteryThroughputGrowth, curtailmentGap, earliestYear, latestYear, data) {
+            document.getElementById('flood-metrics').innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-label">RE Generation Growth</div>
+                    <div class="metric-value primary">${reGrowth}%</div>
+                    <div class="metric-subtext">From ${earliestYear} to ${latestYear}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Battery Throughput Growth</div>
+                    <div class="metric-value secondary">${batteryThroughputGrowth}%</div>
+                    <div class="metric-subtext">From ${earliestYear} to ${latestYear}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">${latestYear} Storage Gap</div>
+                    <div class="metric-value danger">${curtailmentGap}x</div>
+                    <div class="metric-subtext">Curtailment vs Battery Work</div>
+                </div>
+            `;
+        }
+
+        // LMP ANALYSIS INITIALIZATION
+        function initLMPAnalysis() {
+            const lmpData = dashboardData.lmpAnalysis;
+
+            // Populate filter dropdowns
+            populateSelect('yearFilter', lmpData.years);
+            populateSelect('scenarioFilter', lmpData.scenarios);
+            populateSelect('regionFilter', lmpData.regions);
+            populateSelect('monthFilter', lmpData.months);
+
+            // Set default values (latest year)
+            document.getElementById('yearFilter').value = lmpData.years[lmpData.years.length - 1];
+            document.getElementById('scenarioFilter').value = lmpData.scenarios[0];
+            document.getElementById('regionFilter').value = lmpData.regions[0];
+            document.getElementById('monthFilter').value = lmpData.months[0];
+
+            // Initial chart
+            updateLMPChart();
+        }
+
+        function populateSelect(elementId, options) {
+            const select = document.getElementById(elementId);
+            select.innerHTML = options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+        }
+
+        function updateLMPChart() {
+            const year = parseInt(document.getElementById('yearFilter').value);
+            const scenario = document.getElementById('scenarioFilter').value;
+            const region = document.getElementById('regionFilter').value;
+            const month = document.getElementById('monthFilter').value;
+
+            const filtered = dashboardData.lmpAnalysis.data.find(
+                d => d.year === year && d.scenario === scenario && d.region === region && d.month === month
+            );
+
+            if (!filtered || filtered.hourlyData.length === 0) {
+                document.getElementById('duckCurveWarning').innerHTML = '';
+                document.getElementById('lmp-metrics').innerHTML = '';
+                return;
+            }
+
+            const hourlyData = filtered.hourlyData;
+
+            // Create chart
+            createLMPChart(hourlyData);
+
+            // Calculate stats
+            const costs = hourlyData.map(h => h.cost);
+            const minPrice = Math.min(...costs);
+            const maxPrice = Math.max(...costs);
+            const avgPrice = (costs.reduce((a, b) => a + b) / costs.length).toFixed(2);
+            const minHour = hourlyData.find(h => h.cost === minPrice).hour;
+            const maxHour = hourlyData.find(h => h.cost === maxPrice).hour;
+            const rangeRatio = (maxPrice / (minPrice || 1)).toFixed(1);
+
+            // Show duck curve warning if applicable
+            if (maxPrice / (minPrice || 1) > 2) {
+                document.getElementById('duckCurveWarning').innerHTML = `
+                    <div class="duck-curve-warning">
+                        🦆 Duck Curve Detected: Price range of $${minPrice.toFixed(0)} - $${maxPrice.toFixed(0)}/MWh
+                        represents a ${rangeRatio}x variance, typical during high renewable penetration.
+                    </div>
+                `;
+            } else {
+                document.getElementById('duckCurveWarning').innerHTML = '';
+            }
+
+            // Create metric cards
+            document.getElementById('lmp-metrics').innerHTML = `
+                <div class="metric-card">
+                    <div class="metric-label">Min Price</div>
+                    <div class="metric-value" style="color: #4ADE80;">$${minPrice.toFixed(2)}</div>
+                    <div class="metric-subtext">Hour ${minHour}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Max Price</div>
+                    <div class="metric-value" style="color: #EF4444;">$${maxPrice.toFixed(2)}</div>
+                    <div class="metric-subtext">Hour ${maxHour}</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Average Price</div>
+                    <div class="metric-value primary">$${avgPrice}</div>
+                    <div class="metric-subtext">All Hours</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-label">Price Range</div>
+                    <div class="metric-value secondary">${rangeRatio}x</div>
+                    <div class="metric-subtext">Max/Min Ratio</div>
+                </div>
+            `;
+        }
+
+        // Convert 24-hour format to 12-hour AM/PM format
+        function formatHourTo12H(hour) {
+            if (hour === 0) return '12 AM';
+            if (hour < 12) return hour + ' AM';
+            if (hour === 12) return '12 PM';
+            return (hour - 12) + ' PM';
+        }
+
+        function createLMPChart(hourlyData) {
+            const ctx = document.getElementById('lmpChart').getContext('2d');
+
+            if (lmpChart) lmpChart.destroy();
+
+            // Gas benchmark price
+            const gasBenchmark = 20;
+            const gasLine = new Array(hourlyData.length).fill(gasBenchmark);
+            
+            // Calculate profit zone metrics
+            const profitHours = hourlyData.filter(h => h.cost < gasBenchmark).length;
+            const avgProfitPrice = hourlyData.filter(h => h.cost < gasBenchmark).reduce((sum, h) => sum + h.cost, 0) / (profitHours || 1);
+
+            lmpChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: hourlyData.map(h => formatHourTo12H(h.hour)),
+                    datasets: [
+                        {
+                            label: 'Electricity Price (LMP)',
+                            data: hourlyData.map(h => h.cost),
+                            borderColor: '#00D9FF',
+                            backgroundColor: 'rgba(0, 217, 255, 0.15)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4,
+                            pointBackgroundColor: '#FF6B35',
+                            pointBorderColor: '#FF6B35',
+                            pointRadius: 4,
+                            pointHoverRadius: 6,
+                            yAxisID: 'y',
+                        },
+                        {
+                            label: 'Industrial Natural Gas Price Benchmark',
+                            data: gasLine,
+                            borderColor: 'rgba(255, 152, 0, 0.8)',
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [8, 4],
+                            pointRadius: 0,
+                            tension: 0,
+                            yAxisID: 'y',
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#D1D5DB',
+                                font: { size: 12 },
+                                padding: 15,
+                            },
+                        },
+                        annotation: {
+                            annotations: {
+                                profitZone: {
+                                    type: 'box',
+                                    xMin: 0,
+                                    xMax: hourlyData.length - 1,
+                                    yMin: 0,
+                                    yMax: gasBenchmark,
+                                    backgroundColor: 'rgba(76, 175, 80, 0.05)',
+                                    borderColor: 'rgba(76, 175, 80, 0.2)',
+                                    borderWidth: 0,
+                                }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(26, 31, 46, 0.95)',
+                            borderColor: '#00D9FF',
+                            borderWidth: 1,
+                            titleColor: '#00D9FF',
+                            titleFont: { weight: 'bold' },
+                            bodyColor: '#D1D5DB',
+                            padding: 12,
+                            callbacks: {
+                                title: function(context) {
+                                    if (context.length > 0) {
+                                        const hour = hourlyData[context[0].dataIndex].hour;
+                                        return 'Time: ' + formatHourTo12H(hour);
+                                    }
+                                    return '';
+                                },
+                                label: function(context) {
+                                    if (context.datasetIndex === 0) {
+                                        const price = context.parsed.y;
+                                        let label = 'Electricity: $' + price.toFixed(2) + '/MWh';
+                                        if (price < gasBenchmark) {
+                                            label += ' ✓ PROFIT ZONE';
+                                        }
+                                        return label;
+                                    } else if (context.datasetIndex === 1) {
+                                        return 'Gas Benchmark: $' + context.parsed.y.toFixed(2) + '/MWh';
+                                    }
+                                    return context.parsed.y.toFixed(2);
+                                },
+                                afterLabel: function(context) {
+                                    if (context.datasetIndex === 0) {
+                                        const price = context.parsed.y;
+                                        if (price < gasBenchmark) {
+                                            const spread = (gasBenchmark - price).toFixed(2);
+                                            return `Spread: +$${spread}/MWh`;
+                                        } else {
+                                            const loss = (price - gasBenchmark).toFixed(2);
+                                            return `Loss: -$${loss}/MWh`;
+                                        }
+                                    }
+                                    return '';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: '#9CA3AF',
+                                callback: function(value) {
+                                    return '$' + value.toFixed(0);
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(107, 114, 128, 0.2)',
+                                drawBorder: true,
+                            },
+                            title: {
+                                display: true,
+                                text: '$/MWh',
+                                color: '#9CA3AF',
+                                font: { weight: 'bold' }
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#9CA3AF',
+                                font: { size: 10 },
+                                stepSize: 3,
+                                callback: function(value) {
+                                    return formatHourTo12H(value);
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(107, 114, 128, 0.2)',
+                            },
+                            title: {
+                                display: true,
+                                text: 'Time of Day',
+                                color: '#9CA3AF',
+                                font: { weight: 'bold' }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Add profit zone stats to UI
+            const profit_text = profitHours > 0 ? 
+                `<strong style="color: #4ADE80;">✓ Profit Zone: ${profitHours} hours below gas at avg $${avgProfitPrice.toFixed(2)}/MWh</strong>` :
+                `<span style="color: #EF4444;">✗ No profit hours this period</span>`;
+            
+            const lmpSection = document.querySelector('section:has(#lmpChart)');
+            if (lmpSection && !lmpSection.querySelector('.profit-insight')) {
+                const insight = document.createElement('div');
+                insight.className = 'profit-insight';
+                insight.style.cssText = 'background: rgba(76, 175, 80, 0.1); border-left: 3px solid #4ADE80; padding: 12px; margin: 10px 0; border-radius: 4px; color: #D1D5DB;';
+                insight.innerHTML = profit_text;
+                lmpSection.appendChild(insight);
+            } else if (lmpSection) {
+                const existingInsight = lmpSection.querySelector('.profit-insight');
+                if (existingInsight) {
+                    existingInsight.innerHTML = profit_text;
+                }
+            }
+        }
+
+        // Initialize when page loads
+        window.addEventListener('load', initDashboard);
+    </script>
+</body>
+</html>
